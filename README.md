@@ -15,12 +15,12 @@ The framework allows a user to choose a Q&A community/forum (currently 'only' 14
 Features:
 1. User-related features
 2. Question-related features\n
-   * Textual and text-based features (aka NLP features)
-   * tag-based features
+   1. Textual and text-based features (aka NLP features)
+   2. tag-based features
 3. Temporal features\n
-   * Associalted with a user
-   * Associalted with a question or answer
+   1. Associalted with a user
+   2. Associalted with a question or answer
 4. Spatial features\n
-   * User's location, timezone
+   1. User's location, timezone
 
 To be continued...
