@@ -13,14 +13,14 @@ The goal of the framework is to predict temporal user behavior on the Web. For e
 The framework allows a user to choose a Q&A community/forum (currently 'only' 148 Stack Exchange websites) and then explore it, analyze, choose a prediction type, choose features for prediction, machine learning (ML) algorithm. Then a user can explore the results of the prediction, its accuracy and time performance.
 
 Features:
-* item User-related features
-* item Question-related features
+* User-related features
+* Question-related features\\
    a) Textual and text-based features (aka NLP features)
    b) tag-based features
-* item Temporal features
+* Temporal features\\
    a) Associalted with a user
    b) Associalted with a question or answer
-* item Spatial features
+* Spatial features\\
    a) User's location, timezone
 
 To be continued...
