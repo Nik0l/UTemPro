@@ -1,7 +1,7 @@
 # UTemPr
 A framework for prediction of temporal user behavior.
 
-This framework is described in the paper "Prediction of Users' Response Time in Q&A Communities". The paper is currently under review so the source code will be uploaded after the review process.
+''This framework is described in the paper "Prediction of Users' Response Time in Q&A Communities". The paper is currently under review so the source code will be uploaded after the review process.''
 
 The framework is written mostly in Python 2.7.
 
@@ -13,14 +13,14 @@ The goal of the framework is to predict temporal user behavior on the Web. For e
 The framework allows a user to choose a Q&A community/forum (currently 'only' 148 Stack Exchange websites) and then explore it, analyze, choose a prediction type, choose features for prediction, machine learning (ML) algorithm. Then a user can explore the results of the prediction, its accuracy and time performance.
 
 Features:
-* User-related features
-* Question-related features\n
-   a) Textual and text-based features (aka NLP features)
-   b) tag-based features
-* Temporal features\n
-   a) Associalted with a user
-   b) Associalted with a question or answer
-* Spatial features\n
-   a) User's location, timezone
+1. User-related features
+2. Question-related features\n
+   * Textual and text-based features (aka NLP features)
+   * tag-based features
+3. Temporal features\n
+   * Associalted with a user
+   * Associalted with a question or answer
+4. Spatial features\n
+   * User's location, timezone
 
 To be continued...
