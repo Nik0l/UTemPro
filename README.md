@@ -18,8 +18,8 @@ Features:
    a. Textual and text-based features (aka NLP features)
    b. tag-based features
 3. Temporal features
-   a. Associalted with a user
-   b. Associalted with a question or answer
+   a. Associated with a user
+   b. Associated with a question or answer
 4. Spatial features
    a. User's location, timezone
 ```
