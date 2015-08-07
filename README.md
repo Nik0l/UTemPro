@@ -1,7 +1,7 @@
 # UTemPr
 A framework for prediction of temporal user behavior.
 
-This framework is described in the paper 'Prediction of Users' Response Time in Q&A Communities'. The paper is currently under review so the source code will be uploaded after the review process.
+This framework is described in the paper "Prediction of Users' Response Time in Q&A Communities". The paper is currently under review so the source code will be uploaded after the review process.
 
 The framework is written mostly in Python 2.7.
 
