@@ -10,7 +10,7 @@ scikit-learn, nolearn, NLTK, sqlite3, GeoPy
 
 The goal of the framework is to predict temporal user behavior on the Web. For example, in the context of Q&A forums, to predict when a user answers a question, when a new question will be asked and by whom. The framework provides an API and has been tested on Stack Exchange websites.
 
-The framework allows a user to choose a Q&A community/forum (currently 'only' 158 Stack Exchange websites) and then explore it, analyze, choose a prediction type, choose features for prediction, machine learning (ML) algorithm. Then a user can explore the results of the prediction, its accuracy and time performance.
+The framework allows a user to choose a Q&A community/forum (currently 'only' 148 Stack Exchange websites) and then explore it, analyze, choose a prediction type, choose features for prediction, machine learning (ML) algorithm. Then a user can explore the results of the prediction, its accuracy and time performance.
 
 Features:
 1) User-related features
