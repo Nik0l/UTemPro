@@ -6,7 +6,7 @@ A framework for prediction of temporal user behavior.
 The framework is written mostly in Python 2.7.
 
 Dependencies:
-scikit-learn, nolearn, NLTK, matplotlib, sqlite3, GeoPy
+scikit-learn, nolearn, NLTK, matplotlib, sqlite3, GeoPy, pyenchant
 
 The goal of the framework is to predict temporal user behavior on the Web. For example, in the context of Q&A forums, to predict when a user answers a question, when a new question will be asked and by whom. The framework provides an API and has been tested on Stack Exchange websites.
 
