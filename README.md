@@ -1,4 +1,7 @@
 # UTemPr
+
+**Please, read [_wiki_](https://github.com/Nik0l/UTemPr/wiki) for more information**
+
 A framework for prediction of temporal user behavior.
 
 The framework is written mostly in Python 2.7.
