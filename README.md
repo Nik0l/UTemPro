@@ -1,4 +1,4 @@
-# UTemPr
+# UTemPro
 
 **Please, read [_wiki_](https://github.com/Nik0l/UTemPr/wiki) for more information**
 
