@@ -1,5 +1,7 @@
 # UTemPro
 
+##[For KDD Paper Reviewers](https://github.com/Nik0l/UTemPro/wiki)
+
 **Please, read [_wiki_](https://github.com/Nik0l/UTemPr/wiki) for more information**
 
 A framework for prediction of human behavior on the Web. 
