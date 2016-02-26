@@ -89,7 +89,7 @@ def theanoTest(y,X):
     classes = model.predict_classes(X_test, batch_size=32)
     proba = model.predict_proba(X_test, batch_size=32)
 
-def runExperiment(df, feature_sets, times, batch_size=100):
+def runExperiment(df, feature_sets, times, batch_size=5000):
     tick = time.time()
     outputs = []
     for feature_set in feature_sets:
@@ -165,7 +165,7 @@ filename = 'normMLa.csv'
 #df1.to_csv(DIR + 'testing.csv', index=False)
 df = pd.read_csv(DIR + 'testing.csv')
 feature_sets = ['RL', 'NOTAGS', 'NOSTEMP', 'all']
-dfres = runExpNtimes(df, feature_sets, repetitions=2)
+dfres = runExpNtimes(df, feature_sets, repetitions=10)
 dfres = dfres.sort(['Learning_Type', 'Algorithm', 'Features'], ascending=False)
 
 dfresa = dfres[dfres['Features']=='all']
