@@ -1,4 +1,3 @@
-#Script to merge extracted and calculated features for further visualization, ML prediction, etc.
 __author__ = 'nb254'
 import csv
 import pandas as pd
@@ -140,8 +139,7 @@ def addMoreUserActivityFeatures():
     result = pd.merge(df5, tag_spec, how='left', on='QuestionId')
     result.to_csv(DIR + file_name1)
 
-def prepareForML(df, filename):
-    '''
+def prepareForML(df):
     # drop unnecessary columns
     df.drop(['COUNTRY', 'ADMIN_REGION', 'Unnamed: 0',
          'U_POSTS', 'LOCATION.1', 'TIME_ZONE', 'USERS_SAME_LOC',
@@ -165,7 +163,7 @@ def prepareForML(df, filename):
     #print df.shape[1]
     df.drop(['Unnamed: 0'], axis=1, inplace=True)
     df.to_csv('dropped_cols2.csv', index=False)
-    '''
+
     df = pd.read_csv('dropped_cols2.csv')
     df.drop(['Unnamed: 0.1'], axis=1, inplace=True)
 
@@ -190,8 +188,12 @@ def prepareForML(df, filename):
     for feature in feature_list:
        print feature
        df[feature] = df[feature].astype(int)
-    df.to_csv(filename, index=False)
-    return df
+    df.to_csv('test2.csv', index=False)
+    df1 = pd.read_csv('test2.csv')
+    df2 = pd.read_csv('unique_locations_num.csv')
+    result = pd.concat([df1, df2], axis=1)
+    result.drop(['Q_MARKS_TITLE', 'LOCATION', 'Unnamed: 0'], axis=1, inplace=True)
+    return result
 
 def intFromLoc(df, filename):
     dloc = df['LOCATION']
@@ -225,16 +227,11 @@ def intFromLoc(df, filename):
 #CreateTimeLabel(MED_REAL, DIR + 'TEMP_CL6.csv')
 #CreateDataForML('ML')
 #addMoreUserActivityFeatures()
-#df = pd.read_csv(DIR + 'data_for_ML/merged_all.csv'# )
-df = []
-prepareForML(df, 'test2.csv')
+df = pd.read_csv(DIR + 'data_for_ML/merged_all.csv')
+#df = []
+result = prepareForML(df)
 print 'next...'
 #intFromLoc(df, 'unique_locations_num.csv')
-
-df1 = pd.read_csv('test2.csv')
-df2 = pd.read_csv('unique_locations_num.csv')
-result = pd.concat([df1, df2], axis=1)
-result.drop(['Q_MARKS_TITLE', 'LOCATION', 'Unnamed: 0'], axis=1, inplace=True)
 result.to_csv('final.csv', index=False)
 '''
 df3 = pd.read_csv('final.csv')
