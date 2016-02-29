@@ -1,4 +1,3 @@
-# aka Temporal features are calculated here. For example, how many questions a user asked last week, activity of a user on weekends.
 __author__ = 'nb254'
 import time
 import csv
@@ -6,20 +5,14 @@ from datetime import date
 import Features as feature
 from time import mktime
 from datetime import datetime
+import pandas as pd
 
-header_w = feature.KEY + feature.TIME_FEATURES
-
-QUESTIONID_INDEX    = 0
-TIME_ASKED_INDEX    = 5
-TIME_ANSWERED_INDEX = 6
-
-def DataWeekend(data):
+def dateWeekend(data):
    data_w = []
-   i = 0
-   for row in data:
-       if i>0:#ignore the header
-          sq = row[TIME_ASKED_INDEX].replace("T", " ")
-          sq = sq[1:20]
+   for index in xrange(0, len(data)):
+          #print data['TimeAsked'][index]
+          sq = str(data['TimeAsked'][index]).replace("T", " ")
+          sq = sq[0:19]
           #print sq
           time_asked = time.strptime(sq, "%Y-%m-%d %H:%M:%S")
           weekday_q   = time.strftime("%w", time_asked)
@@ -28,8 +21,8 @@ def DataWeekend(data):
           else:
              weekend_q = 0
 
-          sa = row[TIME_ANSWERED_INDEX].replace("T", " ")
-          sa = sa[1:20]
+          sa = data['TimeAnswered'][index].replace("T", " ")
+          sa = sa[0:19]
           #print sa
           time_answered = time.strptime(sa, "%Y-%m-%d %H:%M:%S")
           weekday_a     = time.strftime("%w", time_answered)
@@ -38,24 +31,10 @@ def DataWeekend(data):
           else:
              weekend_a = 0
           #print week_day # sunday - zero
-          quest_id = row[QUESTIONID_INDEX].replace('"', '')
+          quest_id = data['QuestionId'][index]
           data_w.append([quest_id, weekday_q, weekend_q, weekday_a, weekend_a])
-       i = i + 1
-   return data_w
-
-def SaveStatToCSV(file_name, data, header):
-    with open(file_name, 'wb') as myfile:
-        wr = csv.writer(myfile)
-        wr.writerow(header)
-        wr.writerows(data)
-    return
-
-def TimeFeature(filename_input, filename_output):
-   #whether a question was asked on weekend
-   f       = open(filename_input)
-   reader  = csv.reader(f, delimiter=',', quotechar='|')
-   workday = DataWeekend(reader)
-   SaveStatToCSV(filename_output, workday, header_w)
+   result = pd.DataFrame(data_w, columns=['QuestionId', 'WEEKDAY_Q', 'WEEKEND_Q', 'WEEKDAY_A', 'WEEKEND_A'])
+   return result
 
 def parseTime(s):
    print s
