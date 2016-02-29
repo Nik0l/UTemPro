@@ -1,4 +1,3 @@
-# Analysis of question tags
 from collections import Counter
 import csv
 from itertools import chain
@@ -8,8 +7,6 @@ import pandas as pd
 
 QUESTIONID_INDEX = 0
 TAG_INDEX        = 4
-
-header = features.TAG_KEYS + features.TAG_FEATURES
 
 def Stats(filename_input):
    f = open(filename_input)
@@ -34,9 +31,6 @@ def Stats(filename_input):
        i = i + 1
    #print data['set_a']
    data['unique_tags'] = Counter(total_tags)
-   #print data['unique_tags']
-   #print list(num)
-   #SaveStatToCSV('Tags.csv', data['set_a'], [''])
    return data
 
 def TagsAvPopularity(tags, pop_table):
@@ -44,19 +38,22 @@ def TagsAvPopularity(tags, pop_table):
    for tag in tags:
       #print tag
       #print pop_table[tag]
-      av_popularity = av_popularity + pop_table[tag]
+      ind = pop_table['Tags'][pop_table['Tags'] == tag].index.tolist()[0]
+      av_popularity = av_popularity + pop_table['Occurancy'][ind]
    av_popularity = av_popularity/len(tags)
    return av_popularity
 
 def TagsNumPop(tags, pop_table):
    num_pop = 0
-   score   = [25, 50, 100]
+   #score   = [25, 50, 100]
+   score   = [2, 5, 10]
    for tag in tags:
-      if pop_table[tag] > score[2]: # a very popular tag
+      ind = pop_table['Tags'][pop_table['Tags'] == tag].index.tolist()[0]
+      if pop_table['Occurancy'][ind] > score[2]: # a very popular tag
          num_pop = num_pop + 3
-      elif pop_table[tag] > score[1]: # a moderately popular tag
+      elif pop_table['Occurancy'][ind] > score[1]: # a moderately popular tag
          num_pop = num_pop + 2
-      elif pop_table[tag] > score[0]: # just a popular tag
+      elif pop_table['Occurancy'][ind] > score[0]: # just a popular tag
          num_pop = num_pop + 1
    return num_pop
 
@@ -84,10 +81,14 @@ def TagsCoOcProb(tag_x, tag_y, unique_tags, all_tags):
 def TagsCoOcProb1(tag_x, tag_y, unique_tags, table):
    prob_t      = 0.0
    #all_tags   = len(pop_table) # number of all different tags
-   alltags_num = len(list(unique_tags.elements())) # number of all tags
+   alltags_num = len(unique_tags) # number of all tags
    prob_xy = probCoOcfromTable(tag_x, tag_y, table) # occurancy of two tags together somewhere
-   prob_x  = unique_tags[tag_x] # occurancy of the first tag 
-   prob_y  = unique_tags[tag_y] # occurancy of the second tag
+   #prob_x  = unique_tags[tag_x] # occurancy of the first tag
+   ind1 = unique_tags['Tags'][unique_tags['Tags'] == tag_x].index.tolist()[0]
+   prob_x = unique_tags['Occurancy'][ind1]
+   #prob_y  = unique_tags[tag_y] # occurancy of the second tag
+   ind2 = unique_tags['Tags'][unique_tags['Tags'] == tag_y].index.tolist()[0]
+   prob_y = unique_tags['Occurancy'][ind2]
    # the probability of the two tags to appear together
    if prob_x != 0 and prob_y != 0:
       prob_t = (prob_xy * alltags_num * 100) / (prob_x * prob_y)
@@ -114,8 +115,6 @@ def TagsCoOcProbAv(tags, unique_tags, all_tags):
    pairs = PairsFromSet(tags)
    for pair in pairs:
       tag_spec = tag_spec + TagsCoOcProb(pair[0], pair[1], unique_tags, all_tags)
-   #print "tags: ", tags
-   #print len(pairs)
    tag_spec = tag_spec / len(pairs)
    return tag_spec
    
@@ -128,44 +127,25 @@ def parseTags(text):
    s = s.split()
    return s
 
-def TagFeatures(filename_input, unique_tags, table, filename):
-   f = open(filename_input)
-   data_input = csv.reader(f, delimiter=',', quotechar='|')
-   i = 0
-   data = {'QuestionId': 0, 'tags': [], 'av_pop': 0, 'num_pop': 0, 'prob_av': 0}
-   myfile = open(filename, 'wb')
-   wr = csv.writer(myfile)
-   wr.writerow(header)
-   for row in data_input:
-      if i > 0: #ignore the header
-          data['QuestionId'] = row[QUESTIONID_INDEX]
-          s = parseTags(row[TAG_INDEX])
-          for tag in s:
-             data['tags'].append(tag)
-          data['av_pop']  = TagsAvPopularity(data['tags'], unique_tags)
-          data['num_pop'] = TagsNumPop(data['tags'], unique_tags)
-          if len(data['tags']) > 1 and len(data['tags'] < 3):
-             #data['prob_av'] = TagsCoOcProbAv(data['tags'], unique_tags, all_tags)
-             data['prob_av'] = TagsCoOcProb1(data['tags'], unique_tags, table)
-             print 'prob_av: ', data['prob_av']
-          else:
-             data['prob_av'] = 0
-          #data['tags'] = tags
-          #data.append([row[QUESTIONID_INDEX], tags, av_pop, num_pop, prob_av])
-          #data_row = [row[QUESTIONID_INDEX], tags, av_pop, num_pop, prob_av]
-          #print data
-          quest_id = data['QuestionId'].replace('"', '')
-          #tags = data['tags'].replace('"', '')
-          #print 'hhh', data['tags']
-          wr.writerow([quest_id, data['tags'], data['av_pop'], data['num_pop'], data['prob_av']])
-          data   = {'QuestionId': 0, 'tags': [], 'av_pop': 0, 'num_pop': 0, 'prob_av': 0}
-      i = i + 1
-   #return data
+def tagFeatures(data_input, unique_tags):
+   data = []
+   data1 = {'tags': []}
+   for index in xrange(0, len(data_input)):
+       s = parseTags(data_input['Tags'][index])
+       for tag in s:
+           data1['tags'].append(tag)
+       av_pop  = TagsAvPopularity(data1['tags'], unique_tags)
+       num_pop = TagsNumPop(data1['tags'], unique_tags)
+       quest_id = data_input['QuestionId'][index]
+       data.append([quest_id, av_pop, num_pop])
+       data1 = {'tags': []}
+   result = pd.DataFrame(data, columns=['QuestionId', 'AV_POPULARITY_AV', 'NUM_POP_TAGS'])
+   return result
 
 def TagCoOcStats(pairs, filename):
    myfile = open(filename, 'wb')
    wr = csv.writer(myfile)
-   wr.writerow(header)
+   #wr.writerow(header)
    print "total: ", len(pairs)
    PAIRS_U = set([str(x) for x in pairs])
    print "unique: ", len(PAIRS_U)
@@ -231,7 +211,8 @@ def uniqueTags(df):
           print index
    tagss = Counter(all_tags)
    #print tags
-   df1 = pd.DataFrame(tagss.items(), columns=['Tags', 'Occurancy'])
+   df_unique = pd.DataFrame(tagss.items(), columns=['Tags', 'Occurancy'])
+   return df_unique
 
 def uniqueTagsFromTwoDf(df1, df2):
    print len(df2)
@@ -240,19 +221,19 @@ def uniqueTagsFromTwoDf(df1, df2):
       tags.append(df2['Tag1'][index])
       tags.append(df2['Tag2'][index])
    tags_unique = list(set(tags))
-   print 'unique tags: ', len(tags_unique)
+   #print 'unique tags: ', len(tags_unique)
    lists = []
    for index in xrange(0, len(tags_unique)):
       try:
           ind = df1['Occurancy'][df1['Tags'] == tags_unique[index]].index.tolist()[0]
           lists.append([tags_unique[index], df1['Occurancy'][ind]])
       except IndexError:
-          print tags_unique[index]
+          #print tags_unique[index]
           lists.append([tags_unique[index], 0])
       if (index % 100) == 0:
          print index
-   print lists
-   print len(tags_unique)
+   #print lists
+   #print len(tags_unique)
    df = pd.DataFrame(lists, columns=['Tags', 'Occurancy'])
    return df
 
@@ -263,7 +244,7 @@ def specificityCalc(df, df_unique):
       try:
          ind1 = df_unique['Tags'][df_unique['Tags'] == df['Tag1'][index]].index.tolist()[0]
          ind2 = df_unique['Tags'][df_unique['Tags'] == df['Tag2'][index]].index.tolist()[0]
-         prob_xy = df['Occurancy'][index]
+         prob_xy = df['Occurancy_Tags12'][index]
          prob_x = df_unique['Occurancy'][ind1]
          prob_y = df_unique['Occurancy'][ind2]
          tag_spec = float(prob_xy) * alltags_num * 100 / (prob_x * prob_y)
@@ -273,7 +254,7 @@ def specificityCalc(df, df_unique):
       if (index % 1000) == 0:
          print index
    #print len(lists)
-   df_occ = pd.DataFrame(lists, columns=['Tags', 'Tag1', 'Tag2', 'Occuracy_Tags12',
+   df_occ = pd.DataFrame(lists, columns=['Tags', 'Tag1', 'Tag2', 'Occurancy_Tags12',
                                          'Tag1_Occurancy', 'Tag2_Occurancy', 'TAG_SPECIFICITY'])
    return df_occ
 
@@ -288,12 +269,12 @@ def tags(df):
    df2 = pd.DataFrame(tags_npr, columns=['QuestionId', 'Tags'])
    tags = Counter(df2['Tags'])
    #print tags
-   df2_occ = pd.DataFrame(tags.items(), columns=['Tags', 'Occuracy_Tags12'])
+   df2_occ = pd.DataFrame(tags.items(), columns=['Tags', 'Occurancy_Tags12'])
    lists = []
    for index in xrange(0, len(df2_occ)):
       tags = parseTags(df2_occ['Tags'][index])
-      lists.append([df2_occ['Tags'][index], tags[0], tags[1], df2_occ['Occuracy_Tags12'][index]])
-   df2tags_occ = pd.DataFrame(lists, columns=['Tags', 'Tag1', 'Tag2', 'Occuracy_Tags12'])
+      lists.append([df2_occ['Tags'][index], tags[0], tags[1], df2_occ['Occurancy_Tags12'][index]])
+   df2tags_occ = pd.DataFrame(lists, columns=['Tags', 'Tag1', 'Tag2', 'Occurancy_Tags12'])
    return df2, df2tags_occ
 
 def matchAtoB(dfA, dfB):
@@ -301,54 +282,20 @@ def matchAtoB(dfA, dfB):
    dfB = dfB.sort('Tags', ascending=True)
    dfA = dfA.reset_index(drop=True)
    dfB = dfB.reset_index(drop=True)
-   print len(dfB)
-   print len(dfA)
-   print df.head()
-   print dfB.head()
+   #print len(dfB)
+   #print len(dfA)
+   #print dfA.head()
+   #print dfB.head()
    lists = []
    indices = []
    ind = 0
    lists.append([dfB['QuestionId'][0], dfA['TAG_SPECIFICITY'][ind]])
    for index in xrange(0, len(dfB)-1):
-      #inds = df1['Tags'][df1['Tags'] == df['Tags'][index]].index.tolist()
-      #print df['Tags'][ind]
-      #print df1['Tags'][index]
       if dfB['Tags'][index] != dfB['Tags'][index+1]:
           #print 'new tag'
           ind = ind + 1
       lists.append([dfB['QuestionId'][index+1], dfA['TAG_SPECIFICITY'][ind]])
       if (index % 10000) == 0:
           print index
-      #print len(lists)
    result = pd.DataFrame(lists, columns=['QuestionId', 'TAG_SPECIFICITY'])
    return result
-
-'''
-# TEST
-filename_input = '/mnt/nb254_data/src/data_SO/quest_stats.csv'
-df = pd.read_csv(filename_input)
-print df.head()
-
-#df1 = uniqueTags(df)
-#df1.to_csv('/mnt/nb254_data/src/data_SO/tags/1Tags_occurancy.csv',index=False)
-df2, df2_occ = tags(df)
-df2.to_csv('/mnt/nb254_data/src/data_SO/tags/two_tags.csv')
-df2_occ.to_csv('/mnt/nb254_data/src/data_SO/tags/2Tags_occurancy1.csv',index=False)
-
-'''
-#df1 = pd.read_csv('/mnt/nb254_data/src/data_SO/tags/1Tags_occurancy.csv')
-#df2_occ = pd.read_csv('/mnt/nb254_data/src/data_SO/tags/2Tags_occurancy1.csv')
-#optimization step - to create a table with only unique tags
-#df_unique = uniqueTagsFromTwoDf(df1tags, df2tags, )
-#df_unique.to_csv('/mnt/nb254_data/src/data_SO/tags/1Tags_unique_occ.csv', index=False)
-#df_unique = pd.read_csv('/mnt/nb254_data/src/data_SO/tags/1Tags_unique_occ.csv')
-#print df_unique.head()
-#df_occ = specificityCalc(df2_occ, df_unique)
-#df_occ.to_csv('/mnt/nb254_data/src/data_SO/tags/Tags_occurancy.csv', index=False)
-
-#df_occ = pd.read_csv('/mnt/nb254_data/src/data_SO/tags/Tags_occurancy.csv')
-#df1 = pd.read_csv('/mnt/nb254_data/src/data_SO/tags/two_tags.csv')
-#df_m = matchAtoB(df_occ, df1)
-#df_m.to_csv('/mnt/nb254_data/src/data_SO/tags/tag_specificity.csv',index=False)
-
-
