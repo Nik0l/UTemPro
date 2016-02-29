@@ -1,6 +1,6 @@
 __author__ = 'nb254'
 
-
+import os
 import QueryDB as query
 import DecisionTree as tree
 import util as util
@@ -9,300 +9,222 @@ from Variables import fn as fname
 import pandas as pd
 import UsersActivity as useractivity
 import NLPFeatures as nlp
-import TimeFeatures as timefeature
+import TimeFeatures as timefeatures
 import TagAnalysis as tags
 import UsersStats as users
 import UsersLocation as loc
 import time
 import Stats as stats
 from Variables import fn_der as fdname
+from collections import Counter
+import csv
 
-DIR = '/mnt/nb254_data/src/data_SO/derived_data/'
+#DIR = '/mnt/nb254_data/src/data_SO/derived_data/'
+DIR = '/mnt/nb254_data/exp/'
 header1 = ['Tags', 'SecondsToFirstAnswer']
-db_name = 'stackoverflow'
-#db_name = 'beer'
+#db_name = 'stackoverflow'
+db_name = 'beer'
 
-def ExtractUserFeatures(c):
-   quest_per_user = query.QuestPerUser(c)
-   util.save_to_csv(quest_per_user, header['quest_per_user'], 'quest_per_user.csv')
+def extractUserFeatures(c):
+   quest_per_user = pd.DataFrame(query.questPerUser(c), columns=header['quest_per_user'])
+   quest_per_user.to_csv(DIR + 'quest_per_user.csv', index=False)
 
-   answer_per_user = query.AnsPerUser(c)
-   util.save_to_csv(answer_per_user, header['answer_per_user'], 'answer_per_user.csv')
+   answer_per_user = pd.DataFrame(query.ansPerUser(c), columns=header['answer_per_user'])
+   answer_per_user.to_csv(DIR + 'answer_per_user.csv', index=False)
 
-   posts_per_user = query.PostsPerUser(c)
-   util.save_to_csv(posts_per_user, header['posts_per_user'], 'posts_per_user.csv')
+   posts_per_user = pd.DataFrame(query.postsPerUser(c), columns=header['posts_per_user'])
+   posts_per_user.to_csv(DIR + 'posts_per_user.csv', index=False)
 
-   users_stats = query.UsersStats(c)
-   util.save_to_csv(users_stats, header['users_stats'], 'users_stats.csv')
+   users_stats = pd.DataFrame(query.usersStats(c), columns=header['users_stats'])
+   users_stats.to_csv(DIR + 'users_stats.csv', encoding='utf-8', index=False)
 
-   users_av_ans_time = query.UsersAvAnsTime(c)
-   util.save_to_csv(users_av_ans_time, header['users_av_ans_time'], 'users_av_ans_time.csv')
+   users_av_ans_time = pd.DataFrame(query.usersAvAnsTime(c), columns=header['users_av_ans_time'])
+   users_av_ans_time.to_csv(DIR + 'users_av_ans_time.csv', index=False)
 
-def ExtractQuestFeatures(c):
+def extractQuestFeatures(c):
+   accepted_question_title_length = pd.DataFrame(query.questWithAcceptedAnswers(c), columns=header['accepted_question_title_length'])
+   accepted_question_title_length.to_csv(DIR + 'accepted_question_title_length.csv', encoding='utf-8', index=False)
 
-   accepted_question_title_length = query.QuestWithAcceptedAnswers(c)
-   util.save_to_csv(accepted_question_title_length, header['accepted_question_title_length'], 'accepted_question_title_length.csv')
+   accepted_answers = pd.DataFrame(query.acceptedAnswers(c), columns=header['accepted_answers'])
+   accepted_answers.to_csv(DIR + 'accepted_answers.csv', index=False)
 
-   accepted_answers = query.AcceptedAnswers(c)
-   util.save_to_csv(accepted_answers, header['accepted_answers'], 'accepted_answers.csv')
+   posts_stats = pd.DataFrame(query.postsStats(c), columns=header['posts_stats'])
+   posts_stats.to_csv(DIR + 'posts_stats.csv', index=False)
 
-   posts_stats = query.PostsStats(c)
-   util.save_to_csv(posts_stats, header['posts_stats'], 'posts_stats.csv')
+   post_text_data = pd.DataFrame(query.postsText_Data(c), columns=header['post_text_data'])
+   post_text_data.to_csv(DIR + 'post_text_data.csv', encoding='utf-8', index=False)
 
-   #post_title_length_OLD = query.PostsTitleLength_OLD(c)
-   #query.SaveQuery(post_title_length_OLD, header['post_title_length_OLD'], 'post_title_length_OLD.csv')
+   quest_stats = pd.DataFrame(query.questStats(c), columns=header['quest_stats'])
+   quest_stats.to_csv(DIR + 'quest_stats.csv', index=False)
 
-   post_text_data = query.PostsText_Data(c)
-   util.save_to_csv(post_text_data, header['post_text_data'], 'post_text_data.csv')
-
-   quest_stats = query.QuestStats(c)
-   util.save_to_csv(quest_stats, header['quest_stats'], 'quest_stats.csv')
-
-def ExtractAnsTime(c, MODE, VERSION):
+def extractAnsTime(c, MODE, VERSION):
    if MODE == 'FIRST':
-      ans_time_first = query.FirstAnsTime(c)
+      ans_time_first = query.firstAnsTime(c)
       util.save_to_csv(ans_time_first, header['ans_time_first'], 'ans_time_first.csv')
    elif MODE == 'ACCEPTED':
-      ans_time_accept = query.AcceptAnsTime(c)
-      util.save_to_csv(ans_time_accept, header['ans_time_accepted'], 'ans_time_accepted.csv')
+       ans_time_accepted = pd.DataFrame(query.acceptAnsTime(c), columns=header['ans_time_accepted'])
+       ans_time_accepted.to_csv(DIR + 'ans_time_accepted.csv', index=False)
    elif MODE == 'UPVOTED':
-     ans_time_upvoted = query.UpvotedAnsTime(c)
+     ans_time_upvoted = query.upvotedAnsTime(c)
      util.save_to_csv(ans_time_upvoted, header['ans_time_upvoted'], 'ans_time_upvoted.csv')
    if VERSION == 'EXTENDED':
-    ans_time_upvoted_ex = query.UpvotedAnsTime1(c)
+    ans_time_upvoted_ex = query.upvotedAnsTime1(c)
     util.save_to_csv(ans_time_upvoted_ex, header['ans_time_upvoted_ex'], 'ans_time_upvoted_ex.csv')
 
-def ExtractTagStats(c):
-    tags_stats = query.TagStats(c)
-    util.save_to_csv(tags_stats, header['tags_stats'], 'tags_stats.csv')
+def userAccAns(data):
+    header = ['UserId', 'NUM_OF_A_ACCEPTED_BY_OTHERS']
+    #print data
+    acc_answers = pd.DataFrame(stats.CountAccAnswers(data), columns=header)
+    return acc_answers
 
-def extractNumTags(filename):
-    df_tags = pd.read_csv(filename)
-    #print df_tags.shape[0]
+def extractNumTags(df_tags):
     num_of_tags = []
     for index in xrange(0, len(df_tags)):
-            num_of_tags.append([df_tags['QuestionId'][index], df_tags['Tags'][index].count(',') + 1])
+        num_of_tags.append([df_tags['QuestionId'][index], df_tags['Tags'][index].count('>') ])
     df = pd.DataFrame(num_of_tags, columns=['QuestionId', 'NUM_TAGS'])
-    df.to_csv('/mnt/nb254_data/src/data_SO/tags/num_tags.csv', index=False)
+    return df
+'''
+def extractNumTags(df_tags):
+    num_of_tags = []
+    for index in xrange(0, len(df_tags)):
+        num_of_tags.append([df_tags['QuestionId'][index], df_tags['Tags'][index].count(',') + 1])
+    df = pd.DataFrame(num_of_tags, columns=['QuestionId', 'NUM_TAGS'])
+    return df
 
-def ExtractUserActivityFeatures():
-   #users_activity = query.UsersActivity(c)
-   #util.save_to_csv(users_activity, header['users_activity'], 'users_activity.csv')
-   #fname['usr_act'] is 'users_activity.csv'
-   #users_activity = useractivity.GetUserActivity(fname['usr_act'])
-   filename = '/mnt/nb254_data/src/data_SO/' + 'users_activity.csv'
-   users_activity = pd.read_csv(filename)
-   posts = useractivity.MakePosts(users_activity)
-   #if you saved the posts then you can simply open them
-   #posts = pd.read_csv('users_posts_times3.csv')
-   activities = useractivity.usersActivityFast(posts)
-   #print activities
-   util.save_to_csv(activities, header['users_activity_features'], 'users_activity_features.csv')
+def extractTagStats(c):
+    tags_stats = query.tagStats(c)
+    util.save_to_csv(tags_stats, header['tags_stats'], 'tags_stats.csv')
+'''
 
-def ExtractUserTimeIntervalFeatures(year, month, day):
-    #posts = pd.read_csv('users_posts_times3.csv')
-    # = posts[posts['year'] == year]
-    #posts = posts[posts['month'] == month]
-    #posts = posts[posts['day'] > day]
-    #posts = posts.sort(['day'], ascending=False)
-    #posts = posts.sort(['UserId'], ascending=True)
-    #posts.to_csv('posts_2014_09_07A.csv')
-    #TODO if not saved, then indices must be put in order
-    posts = pd.read_csv('posts_2014_09_07A.csv')
-    posts_day = posts[posts['day'] > 12]
-    posts_day = posts_day[['UserId','PostType', 'year', 'month', 'day', 'hour', 'min']]
-    posts_day = posts_day.sort(['hour'], ascending=False)
-    posts_day.to_csv('posts_2014_09_07A12.csv')
-    posts_day = pd.read_csv('posts_2014_09_07A12.csv')
-    num = 1
+def extractUserActivityFeatures(c):
 
-    activities_day = activityDay(posts_day)
-    df_day = pd.DataFrame(activities_day, columns=['UserId', 'P_NUM_LAST_DAY'])
-    print df_day
-    #activities last week
-    activities = activityWeek(posts)
-    df_week = pd.DataFrame(activities, columns=['UserId', 'Q_LAST_WEEK', 'A_LAST_WEEK'])
-    print df_week
-    df_result = pd.merge(df_week, df_day, how='left', on='UserId')
-    print df_result
-    df_result = df_result.fillna(0)
-    # columns=['UserId', 'Q_LAST_WEEK', 'A_LAST_WEEK', 'P_NUM_LAST_DAY']
-    df_result.to_csv('temp_features.csv')
+   users_activity = pd.DataFrame(query.usersActivity(c), columns=header['users_activity'])
+   users_activity.to_csv(DIR + 'users_activity.csv', index=False)
 
-def activityDay(posts):
-    activities_day = []
-    comments = 0
-    #activities last day
-    for index in xrange(0, len(posts)-1):
-        comments = comments + 1
-        if posts['UserId'][index] != posts['UserId'][index+1]:
-            activities_day.append([posts['UserId'][index], comments])
-            comments = 0
-    return activities_day
+   posts = useractivity.makePosts(users_activity)
+   posts = posts[posts['UserId'] != -1]
+   return posts
 
-def activityWeek(posts):
-    activities = []
-    act = dict(
-        questions = 0,
-        answers = 0,
-    )
-    for index in xrange(0, len(posts)-1):
-        updateActivities(posts, act, index)
-        if posts['UserId'][index] != posts['UserId'][index+1]:
-            activities.append([posts['UserId'][index], act['questions'], act['answers']])
-            act['questions'] = 0
-            act['answers']= 0
-    return activities
+def titleBodyLength(data):
+   df = data[['PostId','TITLE_LENGTH', 'BODY_LENGTH']]
+   df.rename(columns={'PostId':'QuestionId'}, inplace=True)
+   return df
 
-def updateActivities(posts, act, index):
-    if posts['PostType'][index] == 1: # question
-        act['questions'] = act['questions'] + 1
-    elif posts['PostType'][index] == 2: # answer
-        act['answers'] = act['answers'] + 1
-
-def UserAccAns():
-    header = ['UserId', 'NUM_OF_A_ACCEPTED_BY_OTHERS']
-    data = pd.read_csv(fname['acc_ans'])
-    print data
-    acc_answers = stats.CountAccAnswers(data)
-    #print acc_answers
-    util.save_to_csv(acc_answers, header, fdname['uac_ans'])
-
-def TitleBodyLength():
-   data = pd.read_csv(fname['txt_dat'])
-   df1 = data[['PostId','TITLE_LENGTH', 'BODY_LENGTH']]
-   df1.rename(columns={'PostId':'QuestionId'}, inplace=True)
-   df1.to_csv(fname['pst_ttb'], index=False)
-
-def ExtractComplexFeatures():
-    # extract NLP features: WARNING: very slow
-    nlp.NLPExtract(fname['txt_dat'], fdname['pst_nlp'])
-    # extract features when a question was asked
-    timefeature.TimeFeature(fname['qst_sta'], fdname['qst_tmp'])
-
-def ExtractTagFeatures():
+def extractTagFeatures(df_tags):
     # CAUTION: takes long time for large datasets...
-    data = tags.Stats(fname['qst_sta'])
-    tags.TagCoOcStats(data['pairs'], fdname['unq_tgs'])
-    tags.TagPairsCoocurance(data['tags'], fdname['unq_tgs'], fdname['tg_cooc'])
-    tags.TagFeatures(fname['qst_sta'], data['unique_tags'], data['tags'], fdname['tg_stat'])
-'''
-def ExtractUserActivityFeatures():
-    time_cut_off = time.strptime('2013-10-26 17:44:02', "%Y-%m-%d %H:%M:%S")
-    users_activity = users.NumSubsAns(fname['qst_sta'], time_cut_off)  #calculate the feature
-    users.SaveStatToCSV(fdname['ans_sta'], users_activity)
-'''
-def ExtractLocations():
+    df = extractNumTags(df_tags)
+    print 'extracted the feature: NUM_TAGS'
+    if not os.path.exists(DIR + 'tags'):
+        os.makedirs(DIR + 'tags')
+    df.to_csv(DIR + 'tags/num_tags.csv', index=False)
+    df = pd.read_csv(DIR + 'quest_stats.csv')
+    df_unique = tags.uniqueTags(df)
+    df_unique.to_csv(DIR + 'tags/1Tags_occurancy.csv', index=False)
+    #print 'df unique', len(df_unique)
+    tag_features = tags.tagFeatures(df_tags, df_unique)
+    tag_features.to_csv(DIR + 'tags/tag_features.csv', index=False)
+    print 'extracted the features: TAG_POPULARITY_AV, NUM_POPTAGS'
+    df2, df2_occ = tags.tags(df)
+    #print 'df2 occ', len(df2_occ)
+    df2.to_csv(DIR + 'tags/two_tags.csv', index=False)
+    df2_occ.to_csv(DIR + 'tags/2Tags_occurancy1.csv',index=False)
+    #optimization step - to create a table with only unique tags
+    df2_unique = tags.uniqueTagsFromTwoDf(df_unique, df2_occ)
+    #print 'df2 unique', len(df2_unique)
+    df2_unique.to_csv(DIR + '/tags/1Tags_unique_occ.csv', index=False)
+    #df_unique = pd.read_csv('/mnt/nb254_data/src/data_SO/tags/1Tags_unique_occ.csv')
+    df_occ = tags.specificityCalc(df2_occ, df2_unique)
+    df_occ.to_csv(DIR + 'tags/Tags_occurancy.csv', index=False)
+    df_occ = pd.read_csv(DIR + 'tags/Tags_occurancy.csv')
+    df1 = pd.read_csv(DIR + '/tags/two_tags.csv')
+    df_m = tags.matchAtoB(df_occ, df1)
+    print 'extracted the feature: TAG_SPECIFICITY'
+    df_m.to_csv(DIR + 'tags/tag_specificity.csv',index=False)
+
+def extractLocations(user_name, data):
+   df_locs = data['LOCATION']
+
    # create a file with unique locations
-   uniq_locs = loc.UniqueLocations(fname['usr_sta'])
-   print uniq_locs
-   loc.SavetoCSV(uniq_locs, ['Unique_Locations'], fname['usr_loc'])
+   uniq_locs = loc.UniqueLocations(df_locs)
+   uniq_locs.to_csv(DIR + 'unique_loc.csv', index=False)
    # find latitude and longitude of these unique locations
-   #uniq_locs = loc.OpenCSV(fname['usr_loc'])
-   #print uniq_locs
-   #loc.WriteLocTZ(uniq_locs, fname['usr_lc1'])
+   uniq_locs = pd.read_csv(DIR + 'unique_loc.csv')
+   print uniq_locs
 
-   # create the file with the unique locations
-   #loc.SpellChecker(fname['usr_lcn'], 'corrected_loc.csv')
-   #locs = loc.OpenCSV('corrected_loc.csv')
-   #loc.FindLocations(locs, 'LOCS.csv')
-   #loc.FindTimezones(fname['usr_lc1'], fname['usr_ltz'])
-   #data = csv.reader(open(fname['usr_sta']))
-   #data_unique = csv.reader(open(fname['usr_lc1'])) # file with all location information
-   #HEADER  = ['UserId'] + features.KEY_LOC + features.USER_LOC + ['USERS_SAME_LOC']
-   # match the information from the unique locations file to the users' IDs
-   #loc.MatchLocations(data, data_unique, HEADER, fname['usr_evr'])
-def userActivityTransform():
-    df = pd.read_csv('users_activity_features.csv')
+   locs = list(uniq_locs['LOCATION'])
+   file_name_s = DIR + 'unique_loc_latlon.csv'
+   loc.findLocations(user_name, locs, file_name_s)
+   print 'extracted LAT and LON'
+   loc.findTimezones(user_name, DIR + 'unique_loc_latlon.csv', DIR + 'locations_done.csv')
 
-    act = dict(
-        q_hour = [],
-        a_hour = [],
-        q_month = [],
-        a_month = [],
-    )
-    for index in xrange(0, len(df)):
-        items_qh = transformString(df['Q_U_HOUR'][index])
-        act['q_hour'].append([df['UserId'][index]] + items_qh)
+   locations = pd.read_csv(DIR + 'locations_done.csv')
+   locations.rename(columns={'Location':'LOCATION'}, inplace=True)
+   locations = locations.sort(['LOCATION'], ascending=False)
+   locations = locations.reset_index()
+   #locations = locations.drop(['index'], axis=1, inplace=True)
+   print locations.head()
+   #data = pd.read_csv(DIR + 'users_stats.csv')
+   data = data.sort(['LOCATION'], ascending=False)
+   data = data.reset_index()
+   print data.head()
+   df = pd.merge(data, locations, how='left', on='LOCATION')
+   return df
 
-        items_ah = transformString(df['Q_U_MONTH'][index])
-        act['a_hour'].append(items_ah)
+def extractEasyFeatures(c):
+   extractUserFeatures(c)
+   extractQuestFeatures(c)
+   extractAnsTime(c, 'ACCEPTED', '')
 
-        items_qm = transformString(df['A_U_HOUR'][index])
-        act['q_month'].append(items_qm)
+   data = pd.read_csv(DIR + 'accepted_answers.csv')
+   acc_answers = userAccAns(data)
+   acc_answers.to_csv(DIR + 'accepted_answers_per_user.csv', index=False)
 
-        items_am = transformString(df['A_U_MONTH'][index])
-        act['a_month'].append(items_am)
+   posts = extractUserActivityFeatures(c)
+   #if you saved the posts then you can simply open them
+   posts.to_csv(DIR + 'users_posts_times.csv', index=False)
 
+   post_text_data = query.postsText_Data(c)
+   util.save_to_csv(post_text_data, header['post_text_data'], 'post_text_data.csv')
+   post_text_data = pd.read_csv(DIR + 'post_text_data.csv')
+   # extract NLP features: WARNING: very slow
+   nlp.NLPExtract(post_text_data, DIR + 'nlp_features.csv')
 
-    dfq_hour = pd.DataFrame(act['q_hour'], columns=['UserId', 'qh1','qh2','qh3','qh4','qh5','qh6','qh7','qh8','qh9','qh10','qh11','qh12',
-                                               'qh13','qh14','qh15','qh16','qh17','qh18','qh19','qh20','qh21','qh22','qh23','qh24'])
-    dfa_hour = pd.DataFrame(act['a_hour'], columns=['ah1','ah2','ah3','ah4','ah5','ah6','ah7','ah8','ah9','ah10','ah11','ah12',
-                                               'ah13','ah14','ah15','ah16','ah17','ah18','ah19','ah20','ah21','ah22','ah23','ah24'])
+def extractHardFeatures():
+   posts = pd.read_csv(DIR + 'users_posts_times.csv')
+   #activities = useractivity.usersActivityFast(posts)
+   year, month, day = useractivity.theLatestPostTime(posts)
+   #extract last week and last day posts
+   posts_week, posts_day = useractivity.extractDayWeekActivity(posts, year, month, day)
+   #print posts_week
+   df_result = useractivity.extractTimeIntervalFeatures(posts_week, posts_day)
+   print 'extracted Q_LAST_WEEK, A_LAST_WEEK, P_NUM_LAST_WEEK'
+   df_result.to_csv(DIR + 'temp_features.csv', index=False)
 
-    dfq_month = pd.DataFrame(act['q_month'], columns=['qm1', 'qm2', 'qm3', 'qm4', 'qm5', 'qm6',
-                                                      'qm7', 'qm8', 'qm9', 'qm10', 'qm11', 'qm12'])
-    dfa_month = pd.DataFrame(act['a_month'], columns=['am1', 'am2', 'am3', 'am4', 'am5', 'am6',
-                                                      'am7', 'am8', 'am9', 'am10', 'am11', 'am12'])
-    result = pd.concat([dfq_hour, dfa_hour, dfq_month, dfa_month], axis=1)
-    result.to_csv('/mnt/nb254_data/src/data_SO/temporal/temp_features1.csv', index=False)
+   df = pd.read_csv(DIR + 'quest_stats.csv')
+   # extract features when a question was asked
+   q_wknd = timefeatures.dateWeekend(df)
+   q_wknd.to_csv(DIR + 'quest_weekend.csv', index=False)
 
-def transformString(items):
-    items = items.replace(",", "")
-    items = items.replace("[", "")
-    items = items.replace("]", "")
-    items = items.split()
-    return items
+   extractLocs()
 
-def MachineLearning(c):
-   FILES_U = ["users_stats", "accepted_answers_per_user", "answer_per_user", "quest_per_user", "user_av_ans_time", "posts_per_user", "users_locations1"]
-   FILES_Q = ["NLP_features", "tags_stats", "quest_stats1", "quest_weekend"]
-   ExtractUserFeatures()
-   #accepted answers
-   accepted_answers = query.AcceptedAnswers(c)
-   util.save_to_csv(accepted_answers, header['accepted_answers'], 'accepted_answers.csv')
-   #TODO: calculate accepted answers per user:
-   #accepted_answers_per_user = stats.CountAccAnswers(data)
-   #accepted_answers_per_user = util.save_to_csv(accepted_answers_per_user, header['accepted_answers_per_user'], 'accepted_answers_per_user.csv')
+   df_tags = pd.read_csv(DIR + 'quest_stats.csv')
+   extractTagFeatures(df_tags)
 
-   # users' locations
-   #users_locations = query.UsersLocations()
-   #util.save_to_csv(users_locations, header['users_locations'], 'users_locations.csv')
-   # question features
-   quest_stats = query.QuestStats(c)
-   util.save_to_csv(quest_stats, header['quest_stats'], 'quest_stats.csv')
-   #TODO: NLP features, tags stats, and quest on weekend
-c = 0
-#c = query.DBConnect(db_name)
+def extractLocs():
+   data = pd.read_csv(DIR + 'users_stats.csv')
+   #TODO write your user's name
+   user_name  = 'NikolayBurlutskiy'
+   df = extractLocations(user_name, data)
+   df.to_csv(DIR + 'data_loc.csv')
+
+c = query.DBConnect(db_name)
 #users_behaviour = query.UsersBehaviour(c)
 #util.save_to_csv([users_behaviour.values()], header['users_behaviour'], DIR + 'users_behaviour.csv')
 #ExtractTagStats()
 #data = query.TagStats(c)
 #tree.TreePredict(data)
-#ExtractAnsTime('ACCEPTED', '')
-#data = query.PostsText_Data1(c)
-#data.to_csv("posts_texts_data.csv")
-#ExtractUserFeatures()
-#ExtractQuestFeatures()
-#UserAccAns()
-#TitleBodyLength()
-#ExtractLocations()
-#ExtractUserActivityFeatures()
-#extract last week and last day posts
-#ExtractUserTimeIntervalFeatures(2014, 9, 7)
-#extractNumTags('/mnt/nb254_data/src/data_SO/tags/tags_stats.csv')
-#userActivityTransform()
-#ExtractTagStats()
-#MachineLearning()
-#post_text_data = query.PostsText_Data(c)
-#util.save_to_csv(post_text_data, header['post_text_data'], 'post_text_data.csv')
-#filename = 'users_activity.csv'
-#data = pd.read_csv(filename)
-#result = useractivity.MakePosts(data)
-#result.to_csv("users_activity_posts.csv")
 
-#ExtractComplexFeatures()
-#ExtractTagFeatures()
-#ExtractUserActivityFeatures()
+extractEasyFeatures(c)
+extractHardFeatures()
 
 
