@@ -94,7 +94,7 @@ def makeSecondTable(dfres):
 DIR = '/mnt/nb254_data/src/data_SO/data_for_ML/'
 filename = 'normMLa.csv'
 
-df = pd.read_csv(DIR + 'testing.csv')
+df = pd.read_csv(DIR + filename)
 
 feature_sets = ['RL', 'NOTAGS', 'NOSTEMP', 'all']
 classifiers = dict(
