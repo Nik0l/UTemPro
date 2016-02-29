@@ -1,4 +1,3 @@
-#Scripts to extract NLP features from a text.
 __author__ = 'nb254'
 #requires question_title_length.csv for processing: TITLE, BODY, POSTID, USERID
 import nltk, csv
@@ -6,25 +5,21 @@ import pandas as pd
 import Features as features
 #test = "<p>I have an original Arduino UNO R3 that I bought and an <a href='http://arduino.cc/en/Main/ArduinoBoardSerialSingleSided3' rel='nofollow'>Arduino Severino (S3V3)</a> that I"'"ve built.</p><p>I have no problems uploading sketches to the UNO, but sometimes, when uploading to the Severino board, I have to hard reset it at a specific time during the upload process, when the IDE says something like this below:</p><pre><code>avrdude: Version 5.11, compiled on Sep  2 2011 at 19:38:36 Copyright (c) 2000-2005 Brian Dean, http://www.bdmicro.com/ Copyright (c) 2007-2009 Joerg Wunsch System wide configuration file is C:\arduino-1.0.3\hardware/tools/avr/etc avrdude.conf Using Port:.\COM1 Using Programmer : arduino Overriding Baud Rate : 115200 avrdude: Send: 0 [30]   [20] avrdude: Send: 0 [30]   [20]  avrdude: Send: 0 [30]   [20] </code></pre> <p>If I don"'"t reset it when one of the <code>Send</code> messages are being displayed, I get the <code>not in sync</code> message, as below:</p><pre><code>avrdude: Recv: avrdude: stk500_getsync(): not in sync: resp=0x00</code></pre><p>Other times, if I'm lucky, I can upload to the Severino board without having to reset it.</p><p>So, my questions are:</p><ol><li><p><strong>Why does that happen? Why Severino needs a hard reset during upload?</strong></p></li><li><p><strong>Why is the problem intermitent?</strong> Why does it happen sometimes and others it doesn't?</p></li><li><p><strong>How can I fix that problem?</strong> Is there a simple change to the Severino design that would fix that?</p></li></ol>"
 
-HEADER = features.KEYS + features.NLP_FEATURES
 
-def NLPExtract(filename_input, filename_output):
-   posts_text = pd.read_csv(filename_input)
-   SaveNLPFeatures(posts_text, HEADER, filename_output)
-
-def SaveNLPFeatures(data, HEADER, file_name):
-  # the file where all 'wh' and '?' will be saved
-  csv_writer = csv.writer(open(file_name, 'wb'))
-  csv_writer.writerow(HEADER)
-  i = 0
-  #print data
-  for index, row in data.iterrows():
-     #TODO:  delete the second condition
-     if i > 0:
-        print row
-        res = NLPFeatures(row)
-        csv_writer.writerow(res)
-     i = i + 1
+def NLPExtract(data, file_name):
+    HEADER = features.KEYS + features.NLP_FEATURES
+    # the file where all 'wh' and '?' will be saved
+    csv_writer = csv.writer(open(file_name, 'wb'))
+    csv_writer.writerow(HEADER)
+    i = 0
+    #print data
+    for index, row in data.iterrows():
+       #TODO:  delete the second condition
+       if i > 0:
+          print row
+          res = NLPFeatures(row)
+          csv_writer.writerow(res)
+       i = i + 1
 
 # counts words of a particular type, for example, 'WP' - 'wh' words
 def NLPFeatures(row):
