@@ -1,4 +1,3 @@
-# Aggregated features on users' activity as well as temporal patterns of user behavior are calculated here.
 __author__ = 'nb254'
 from collections import Counter
 import csv, time
@@ -23,32 +22,7 @@ def UniqueUsers(data):
    #print unique_users
    return unique_users
 
-def MakePostsOld(data):
-   posts = []
-   i = 0
-   for row in data:
-       if i>0:#ignore the header
-          sq = row[TIME_POSTED_INDEX].replace("T", " ")
-          sq = sq[1:20]
-          time_posted  = time.strptime(sq, "%Y-%m-%d %H:%M:%S")
-          #year_posted  = time.strftime("%Y", time_posted)
-          month_posted = time.strftime("%m", time_posted)
-          #day_posted   = time.strftime("%d", time_posted)
-          hour_posted  = time.strftime("%H", time_posted)
-          min_posted   = time.strftime("%M", time_posted)
-          #print hour_posted
-          if row[USERID_INDEX] <> '':
-             posts.append([row[USERID_INDEX], row[POST_TYPE_INDEX], month_posted, hour_posted, min_posted])
-          #else:
-             #print ("No User's ID")
-       i = i + 1
-   #print posts[2]
-   #print i
-   return posts
-
-def MakePosts(data):
-    #print data['TimePosted']
-    #print data.head()
+def makePosts(data):
     posts = []
     for time_stamp in data['TimePosted']:
         #print time_stamp
@@ -102,6 +76,7 @@ def usersActivityFast(posts):
    posts = posts.sort(['UserId'], ascending=True)
    posts = posts[posts['UserId'] != -1]
    posts = posts[['UserId','PostType', 'year', 'month', 'day', 'hour', 'min']]
+   posts = posts.reset_index()
    activities = []
    act_time = dict(
        daytime_q   = [0]*24,
@@ -110,19 +85,19 @@ def usersActivityFast(posts):
        monthtime_a = [0]*12,
    )
    num = 0
-   print posts.head()
+   #print posts.head()
    for index in xrange(0, len(posts)-1):
        updateActivity(posts, index, act_time)
        if posts['UserId'][index] != posts['UserId'][index+1]:
            activities.append([posts['UserId'][index], act_time['daytime_q'],
                               act_time['daytime_a'], act_time['monthtime_q'], act_time['monthtime_a']])
            resetActivity(act_time)
-           print ('new user:', posts['UserId'][index+1])
+           #print 'new user:', posts['UserId'][index+1]
        else:
            updateActivity(posts, index, act_time)
-           print ('same user:', posts['UserId'][index+1])
+           #print ('same user:', posts['UserId'][index+1])
        num = num + 1
-       print ('number: ', num)
+       #print 'number: ', num
    return activities
 
 def updateActivity(posts, index, act_time):
@@ -164,3 +139,126 @@ def GetUserActivity(filename):
   f = open(filename)
   users_activity = csv.reader(f, delimiter=',', quotechar='|')
   return users_activity
+
+def userActivityTransform(df):
+    #df = pd.read_csv('users_activity_features.csv')
+
+    act = dict(
+        q_hour = [],
+        a_hour = [],
+        q_month = [],
+        a_month = [],
+    )
+    for index in xrange(0, len(df)):
+        items_qh = transformString(df['Q_U_HOUR'][index])
+        act['q_hour'].append([df['UserId'][index]] + items_qh)
+
+        items_ah = transformString(df['Q_U_MONTH'][index])
+        act['a_hour'].append(items_ah)
+
+        items_qm = transformString(df['A_U_HOUR'][index])
+        act['q_month'].append(items_qm)
+
+        items_am = transformString(df['A_U_MONTH'][index])
+        act['a_month'].append(items_am)
+
+
+    dfq_hour = pd.DataFrame(act['q_hour'], columns=['UserId', 'qh1','qh2','qh3','qh4','qh5','qh6','qh7','qh8','qh9','qh10','qh11','qh12',
+                                               'qh13','qh14','qh15','qh16','qh17','qh18','qh19','qh20','qh21','qh22','qh23','qh24'])
+    dfa_hour = pd.DataFrame(act['a_hour'], columns=['ah1','ah2','ah3','ah4','ah5','ah6','ah7','ah8','ah9','ah10','ah11','ah12',
+                                               'ah13','ah14','ah15','ah16','ah17','ah18','ah19','ah20','ah21','ah22','ah23','ah24'])
+
+    dfq_month = pd.DataFrame(act['q_month'], columns=['qm1', 'qm2', 'qm3', 'qm4', 'qm5', 'qm6',
+                                                      'qm7', 'qm8', 'qm9', 'qm10', 'qm11', 'qm12'])
+    dfa_month = pd.DataFrame(act['a_month'], columns=['am1', 'am2', 'am3', 'am4', 'am5', 'am6',
+                                                      'am7', 'am8', 'am9', 'am10', 'am11', 'am12'])
+    result = pd.concat([dfq_hour, dfa_hour, dfq_month, dfa_month], axis=1)
+    return result
+
+def transformString(items):
+    items = items.replace(",", "")
+    items = items.replace("[", "")
+    items = items.replace("]", "")
+    items = items.split()
+    return items
+
+def extractDayWeekActivity(posts, year, month, day):
+    #print year
+    #print len(posts)
+    posts = posts.loc[posts['year'].astype(int) == year]
+    #print posts
+    posts = posts.loc[posts['month'].astype(int) == month]
+    #print posts
+    #print 'this month', len(posts)
+    #posts_week = posts_week[['UserId','PostType', 'year', 'month', 'day', 'hour', 'min']]
+    posts_week = posts[posts['day'].astype(int) > day]
+    posts_week = posts_week.sort(['UserId'], ascending=False)
+    posts_week = posts_week.reset_index()
+    #print posts_week
+    #TODO if not saved, then indices must be put in order
+    posts_day = posts_week[posts_week['day'] > 12]
+    posts_day = posts_day[['UserId','PostType', 'year', 'month', 'day', 'hour', 'min']]
+    posts_day = posts_day.sort(['UserId'], ascending=False)
+    posts_day = posts_day.reset_index()
+    #print 'this day', len(posts_day)
+    #print posts_day
+    return posts_week, posts_day
+
+def extractTimeIntervalFeatures(posts_week, posts_day):
+    activities_day = activityDay(posts_day)
+    df_day = pd.DataFrame(activities_day, columns=['UserId', 'P_NUM_LAST_DAY'])
+    #print df_day
+    #activities last week
+    activities = activityWeek(posts_week)
+    df_week = pd.DataFrame(activities, columns=['UserId', 'Q_LAST_WEEK', 'A_LAST_WEEK'])
+    #print df_week
+    df_result = pd.merge(df_week, df_day, how='left', on='UserId')
+    df_result = df_result.fillna(0)
+    df_result['P_NUM_LAST_DAY'] = df_result['P_NUM_LAST_DAY'].astype(int)
+    return df_result
+
+def activityDay(posts):
+    activities_day = []
+    comments = 0
+    #activities last day
+    for index in xrange(0, len(posts)-1):
+        comments = comments + 1
+        if posts['UserId'][index] != posts['UserId'][index+1]:
+            activities_day.append([posts['UserId'][index], comments])
+            comments = 0
+    return activities_day
+
+def activityWeek(posts):
+    activities = []
+    act = dict(
+        questions = 0,
+        answers = 0,
+    )
+    for index in xrange(0, len(posts)-1):
+        updateActivities(posts, act, index)
+        if posts['UserId'][index] != posts['UserId'][index+1]:
+            activities.append([posts['UserId'][index], act['questions'], act['answers']])
+            act['questions'] = 0
+            act['answers']= 0
+    return activities
+
+
+def updateActivities(posts, act, index):
+    if posts['PostType'][index] == 1: # question
+        act['questions'] = act['questions'] + 1
+    elif posts['PostType'][index] == 2: # answer
+        act['answers'] = act['answers'] + 1
+
+def theLatestPostTime(posts):
+    #TODO hardcoded for now - update
+    year = 2014
+    month = 7
+    day = 7
+    return year, month, day
+
+def oneDayFromNow(year, day, month):
+    #TODO hardcoded for now - update
+    year = 2014
+    month = 12
+    day = 14
+    return year, month, day
