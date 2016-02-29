@@ -213,7 +213,7 @@ def extractHardFeatures():
 def extractLocs():
    data = pd.read_csv(DIR + 'users_stats.csv')
    #TODO write your user's name
-   user_name  = 'NikolayBurlutskiy'
+   user_name  = ''
    df = extractLocations(user_name, data)
    df.to_csv(DIR + 'data_loc.csv')
 
