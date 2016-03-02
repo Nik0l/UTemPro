@@ -15,7 +15,6 @@ def extractFeaturesML(db_name, DIR):
     dfML = mf.mergeAll(DIR, key_users, key_posts, mf.FeaturePredict)
     dfML.to_csv(DIR + 'dataML.csv', index=False)
     dfnorm = mf.normalize(dfML)
-    dfnorm = dfnorm.fillna(0)
     return dfnorm
 
 def run_ML(df):
