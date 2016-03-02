@@ -32,9 +32,6 @@ def NLPFeatures(row):
   except UnicodeDecodeError:
      #TODO: convert to unicode, currently just ignoring the error
      print('UnicodeDecodeError: ' + row['Q_Title'])
-     #res    = [post_id, user_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-     #title_fixed = row['Q_Title'].encode('utf-8')
-     #body_fixed  = row['Q_Body'].encode('utf-8')
      res = [post_id, user_id] + [0]*12
   return res
 
@@ -111,5 +108,4 @@ def CodeLength(text, num_cst, num_cen):#text and the number of start and end cod
          if i%2 <> 0:
             cod_len = cod_len + len(line)
          i = i + 1
-   #print cod_len
    return cod_len
