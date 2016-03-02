@@ -25,7 +25,7 @@ def run_ML(df):
         offline=offlineML.getOfflineClassifiers(df.shape[1])
     )
 
-    dfres = ml.runExpNtimes(df, feature_sets, classifiers, repetitions=2)
+    dfres = ml.runExpNtimes(df, feature_sets, classifiers, repetitions=10)
     dfres = dfres.sort(['Learning_Type', 'Algorithm', 'Features'], ascending=False)
     dfresa = ml.makeFirstTable(dfres)
     os.makedirs(DIR + 'results/')
