@@ -300,6 +300,8 @@ def extractForML(db_name, DIR):
     extractEasyFeatures(c, DIR)
     extractHardFeatures(DIR)
     input = pd.read_csv(DIR + 'posts/quest_stats.csv', error_bad_lines=False)
-    createTimeLabels(DIR, input)
+
+    t_median = input['SecondsToAcceptedAnswer'].median()
+    createTimeLabel(input, t_median, DIR + 'posts/TEMP_CL.csv')
 
 
