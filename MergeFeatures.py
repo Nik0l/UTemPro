@@ -76,5 +76,6 @@ def mergeAll(DIR, key_users, key_posts, FeaturePredict):
 def normalize(df):
     df_norm = (df - df.mean()) / (df.max() - df.min())
     df_norm = df_norm - df_norm.min()
+    dfnorm = dfnorm.fillna(0)
     return df_norm
 
