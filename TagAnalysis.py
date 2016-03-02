@@ -136,10 +136,10 @@ def tagFeatures(data_input, unique_tags):
            data1['tags'].append(tag)
        av_pop  = TagsAvPopularity(data1['tags'], unique_tags)
        num_pop = TagsNumPop(data1['tags'], unique_tags)
-       quest_id = data_input['QuestionId'][index]
+       quest_id = data_input['PostId'][index]
        data.append([quest_id, av_pop, num_pop])
        data1 = {'tags': []}
-   result = pd.DataFrame(data, columns=['QuestionId', 'AV_POPULARITY_AV', 'NUM_POP_TAGS'])
+   result = pd.DataFrame(data, columns=['PostId', 'TAG_POPULARITY_AV', 'NUM_POP_TAGS'])
    return result
 
 def TagCoOcStats(pairs, filename):
@@ -263,10 +263,10 @@ def tags(df):
    for index in xrange(0,len(df['Tags'])):
       num = df['Tags'][index].count('>')
       if num == 2:#only two tags
-         tags_npr.append([df['QuestionId'][index], df['Tags'][index]])
+         tags_npr.append([df['PostId'][index], df['Tags'][index]])
       if (index % 50000) == 0:
          print index
-   df2 = pd.DataFrame(tags_npr, columns=['QuestionId', 'Tags'])
+   df2 = pd.DataFrame(tags_npr, columns=['PostId', 'Tags'])
    tags = Counter(df2['Tags'])
    #print tags
    df2_occ = pd.DataFrame(tags.items(), columns=['Tags', 'Occurancy_Tags12'])
@@ -289,13 +289,13 @@ def matchAtoB(dfA, dfB):
    lists = []
    indices = []
    ind = 0
-   lists.append([dfB['QuestionId'][0], dfA['TAG_SPECIFICITY'][ind]])
+   lists.append([dfB['PostId'][0], dfA['TAG_SPECIFICITY'][ind]])
    for index in xrange(0, len(dfB)-1):
       if dfB['Tags'][index] != dfB['Tags'][index+1]:
           #print 'new tag'
           ind = ind + 1
-      lists.append([dfB['QuestionId'][index+1], dfA['TAG_SPECIFICITY'][ind]])
+      lists.append([dfB['PostId'][index+1], dfA['TAG_SPECIFICITY'][ind]])
       if (index % 10000) == 0:
           print index
-   result = pd.DataFrame(lists, columns=['QuestionId', 'TAG_SPECIFICITY'])
+   result = pd.DataFrame(lists, columns=['PostId', 'TAG_SPECIFICITY'])
    return result
