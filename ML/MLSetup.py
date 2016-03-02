@@ -10,7 +10,7 @@ import MLPlot as pt
 
 feature_predict = ['TEMP_CL']
 
-def runExperiment(df, feature_sets, classifiers, times, batch_size=40):
+def runExperiment(df, feature_sets, classifiers, times, batch_size=5000):
     tick = time.time()
     outputs = []
     for feature_set in feature_sets:
