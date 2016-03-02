@@ -31,9 +31,9 @@ def dateWeekend(data):
           else:
              weekend_a = 0
           #print week_day # sunday - zero
-          quest_id = data['QuestionId'][index]
+          quest_id = data['PostId'][index]
           data_w.append([quest_id, weekday_q, weekend_q, weekday_a, weekend_a])
-   result = pd.DataFrame(data_w, columns=['QuestionId', 'WEEKDAY_Q', 'WEEKEND_Q', 'WEEKDAY_A', 'WEEKEND_A'])
+   result = pd.DataFrame(data_w, columns=['PostId', 'WEEKDAY_Q', 'WEEKEND_Q', 'WEEKDAY_A', 'WEEKEND_A'])
    return result
 
 def parseTime(s):
