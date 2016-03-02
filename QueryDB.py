@@ -59,28 +59,28 @@ def questWithAcceptedAnswers(connector):
    return result
 
 def firstAnsTime(connector):
-   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as QuestionId, q.CreationDate as Q_ASKED, MIN(strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToFirstAnswer FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id GROUP BY q.Id;''') # LIMIT 100000
+   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as PostId, q.CreationDate as TimeAsked, MIN(strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToFirstAnswer FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id GROUP BY q.Id;''') # LIMIT 100000
    return result
 
 def acceptAnsTime(connector):
-   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as QuestionId, q.CreationDate as Q_ASKED,
+   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as PostId, q.CreationDate as TimeAsked,
 (strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToAcceptedAnswer FROM posts as q, posts as a WHERE q.PostTypeId = 1 and q.AcceptedAnswerId = a.Id;''') # LIMIT 100000
    return result
 
 def upvotedAnsTime(connector):
-   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as QuestionId, q.CreationDate as Q_ASKED, MIN (strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToUpvotedAnswer FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id AND a.Score > 0 GROUP BY q.Id;''') # LIMIT 100000
+   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as PostId, q.CreationDate as TimeAsked, MIN (strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToUpvotedAnswer FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id AND a.Score > 0 GROUP BY q.Id;''') # LIMIT 100000
    return result
 
 def firstAnsTime1(connector):
-   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as QuestionId, q.CreationDate as Q_ASKED, (strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToAcceptedAnswer, a.Id as AnswerId, q.OwnerUserId as AskerId, a.OwnerUserId as AnswererId FROM posts as q, posts as a WHERE q.PostTypeId = 1 and q.AcceptedAnswerId = a.Id;''') # LIMIT 100000
+   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as PostId, q.CreationDate as TimeAsked, (strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToAcceptedAnswer, a.Id as AnswerId, q.OwnerUserId as AskerId, a.OwnerUserId as AnswererId FROM posts as q, posts as a WHERE q.PostTypeId = 1 and q.AcceptedAnswerId = a.Id;''') # LIMIT 100000
    return result
 
 def acceptAnsTime1(connector):
-   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as QuestionId, q.CreationDate as Q_ASKED, MIN(strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToFirstAnswer, a.Id as AnswerId, q.OwnerUserId as AskerId, a.OwnerUserId as AnswererId FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id GROUP BY q.Id;''') # LIMIT 100000
+   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as PostId, q.CreationDate as TimeAsked, MIN(strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToFirstAnswer, a.Id as AnswerId, q.OwnerUserId as AskerId, a.OwnerUserId as AnswererId FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id GROUP BY q.Id;''') # LIMIT 100000
    return result
 
 def upvotedAnsTime1(connector):
-   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as QuestionId, q.CreationDate as Q_ASKED, MIN (strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToUpvotedAnswer, a.Id as AnswerId, q.OwnerUserId as AskerId, a.OwnerUserId as AnswererId FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id AND a.Score>0 GROUP BY q.Id;''') # LIMIT 100000
+   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as PostId, q.CreationDate as TimeAsked, MIN (strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToUpvotedAnswer, a.Id as AnswerId, q.OwnerUserId as AskerId, a.OwnerUserId as AnswererId FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id AND a.Score>0 GROUP BY q.Id;''') # LIMIT 100000
    return result
 
 def numUsers(connector):
@@ -108,7 +108,7 @@ def numAcceptedAnswers(connector):
    return result
 
 def acceptedAnswers(connector):
-   result = once(lambda x: runquery(connector, x),'''SELECT AcceptedAnswerId as AcceptedAnswerId , Users.Id as UserId FROM Posts, Users WHERE AcceptedAnswerId<>'' and users.Id = posts.OwnerUserId GROUP BY UserId;''') # LIMIT 100000
+   result = once(lambda x: runquery(connector, x),'''SELECT AcceptedAnswerId as PostId , Users.Id as UserId FROM Posts, Users WHERE AcceptedAnswerId<>'' and users.Id = posts.OwnerUserId GROUP BY UserId;''') # LIMIT 100000
    return result
 
 def postsStats(connector):
@@ -165,7 +165,7 @@ def usersBehaviour(connector):
    return data
 
 def tagStats(connector):
-   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as QuestionId,
+   result = once(lambda x: runquery(connector, x),'''SELECT q.Id as PostId,
 MIN (strftime('%s', a.CreationDate)-strftime('%s',q.CreationDate)) as SecondsToUpvotedAnswer, q.body, q.tags
 FROM posts as q, posts as a WHERE q.PostTypeId = 1 AND a.ParentId = q.Id AND a.Score > 0 GROUP BY q.Id''')
    return result
@@ -179,6 +179,6 @@ def questTitleAnswers(connector):
    return result
 
 def requestQuestion(connector, QuestionId):
-   result = once(lambda x: runquery(connector, x),'''SELECT Id as postId, OwnerUserId as userId,
+   result = once(lambda x: runquery(connector, x),'''SELECT Id as PostId, OwnerUserId as UserId,
    Title as title, Body as body, CreationDate as timePosted, Tags as tags FROM Posts WHERE Id = ''' + str(QuestionId) + ''';''') # LIMIT 100000
    return result
