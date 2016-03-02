@@ -1,5 +1,5 @@
 # importing comments from xml to sqlite3
-
+# a part of the code is taken from: http://www.cs.berkeley.edu/~bjoern/projects/stackoverflow/
 import sqlite3
 import xml.parsers.expat
 import sys
