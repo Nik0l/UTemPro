@@ -98,7 +98,8 @@ def usersActivityFast(posts):
            #print ('same user:', posts['UserId'][index+1])
        num = num + 1
        #print 'number: ', num
-   return activities
+   df_act = pd.DataFrame(activities, columns =['UserId','Q_HOUR', 'A_HOUR', 'Q_MONTH', 'A_MONTH'])
+   return df_act
 
 def updateActivity(posts, index, act_time):
     hour_posted  = posts['hour'][index]
@@ -141,38 +142,17 @@ def GetUserActivity(filename):
   return users_activity
 
 def userActivityTransform(df):
-    #df = pd.read_csv('users_activity_features.csv')
 
-    act = dict(
-        q_hour = [],
-        a_hour = [],
-        q_month = [],
-        a_month = [],
-    )
-    for index in xrange(0, len(df)):
-        items_qh = transformString(df['Q_U_HOUR'][index])
-        act['q_hour'].append([df['UserId'][index]] + items_qh)
-
-        items_ah = transformString(df['Q_U_MONTH'][index])
-        act['a_hour'].append(items_ah)
-
-        items_qm = transformString(df['A_U_HOUR'][index])
-        act['q_month'].append(items_qm)
-
-        items_am = transformString(df['A_U_MONTH'][index])
-        act['a_month'].append(items_am)
-
-
-    dfq_hour = pd.DataFrame(act['q_hour'], columns=['UserId', 'qh1','qh2','qh3','qh4','qh5','qh6','qh7','qh8','qh9','qh10','qh11','qh12',
+    dfq_hour = pd.DataFrame(list(df['Q_HOUR']), columns=['qh1','qh2','qh3','qh4','qh5','qh6','qh7','qh8','qh9','qh10','qh11','qh12',
                                                'qh13','qh14','qh15','qh16','qh17','qh18','qh19','qh20','qh21','qh22','qh23','qh24'])
-    dfa_hour = pd.DataFrame(act['a_hour'], columns=['ah1','ah2','ah3','ah4','ah5','ah6','ah7','ah8','ah9','ah10','ah11','ah12',
+    dfa_hour = pd.DataFrame(list(df['A_HOUR']), columns=['ah1','ah2','ah3','ah4','ah5','ah6','ah7','ah8','ah9','ah10','ah11','ah12',
                                                'ah13','ah14','ah15','ah16','ah17','ah18','ah19','ah20','ah21','ah22','ah23','ah24'])
 
-    dfq_month = pd.DataFrame(act['q_month'], columns=['qm1', 'qm2', 'qm3', 'qm4', 'qm5', 'qm6',
+    dfq_month = pd.DataFrame(list(df['Q_MONTH']), columns=['qm1', 'qm2', 'qm3', 'qm4', 'qm5', 'qm6',
                                                       'qm7', 'qm8', 'qm9', 'qm10', 'qm11', 'qm12'])
-    dfa_month = pd.DataFrame(act['a_month'], columns=['am1', 'am2', 'am3', 'am4', 'am5', 'am6',
+    dfa_month = pd.DataFrame(list(df['A_MONTH']), columns=['am1', 'am2', 'am3', 'am4', 'am5', 'am6',
                                                       'am7', 'am8', 'am9', 'am10', 'am11', 'am12'])
-    result = pd.concat([dfq_hour, dfa_hour, dfq_month, dfa_month], axis=1)
+    result = pd.concat([df['UserId'], dfq_hour, dfa_hour, dfq_month, dfa_month], axis=1)
     return result
 
 def transformString(items):
