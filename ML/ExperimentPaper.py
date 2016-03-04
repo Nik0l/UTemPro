@@ -21,7 +21,7 @@ def extractFeaturesML(db_name, DIR):
 def run_ML(df):
     feature_sets = ['RL', 'NOTAGS', 'NOSTEMP', 'all']
     #feature_sets = ['all']
-    dfres = ml.runExpNtimes(df, feature_sets, repetitions=2)
+    dfres = ml.runExpNtimes(df, feature_sets, repetitions=10)
     dfres = dfres.sort(['Learning_Type', 'Algorithm', 'Features'], ascending=False)
     dfresa = ml.makeFirstTable(dfres)
     if not os.path.exists(DIR + 'results/'):
