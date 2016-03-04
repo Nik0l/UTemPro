@@ -53,7 +53,7 @@ def runExpNtimes(df, feature_sets, repetitions):
              'testing_time': 0.0,
              'another_time': 0.0}
     results = []
-    batch_size = 500
+    batch_size = 5000
     for index in xrange(0, repetitions):
         outputs = runExperiment(df, feature_sets, times, batch_size)
         results.append(makeResults(outputs))
