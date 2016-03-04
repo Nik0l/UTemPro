@@ -10,10 +10,14 @@ import MLPlot as pt
 
 feature_predict = ['TEMP_CL']
 
-def runExperiment(df, feature_sets, classifiers, times, batch_size=5000):
+def runExperiment(df, feature_sets, times, batch_size):
     tick = time.time()
     outputs = []
     for feature_set in feature_sets:
+        classifiers = dict(
+            online=onlineML.getOnlineClassifiers(),
+            offline=offlineML.getOfflineClassifiers(df.shape[1])
+        )
         y, X = ml.getDataForML(df, features=feature_set, feature_predict=feature_predict, sampling=False)
         n_features = X.shape[1]
         print 'total features ', n_features
@@ -23,31 +27,35 @@ def runExperiment(df, feature_sets, classifiers, times, batch_size=5000):
         cls_stats = offlineML.runOfflineML(y, X, classifiers['online'])
         output = [cls_stats, classifiers['online'], feature_set, '5fold']
         outputs.append(output)
+
         # online
         cls_stats = onlineML.runOnlineML(y, X, classifiers['online'], batch_size=batch_size)
-        output = [cls_stats, classifiers['online'], feature_set, '5000batch']
+        output = [cls_stats, classifiers['online'], feature_set, str(batch_size) + 'batch']
         outputs.append(output)
+        #cls_name, cls in classifiers.items():
 
         cls_stats = offlineML.runOfflineML(y, X, classifiers['offline'])
         output = [cls_stats, classifiers['offline'], feature_set, '5fold']
         outputs.append(output)
 
         cls_stats = onlineML.runOnlineML(y, X, classifiers['offline'], batch_size=batch_size)
-        output = [cls_stats, classifiers['offline'], feature_set, '5000batch']
+        output = [cls_stats, classifiers['offline'], feature_set, str(batch_size) + 'batch']
         outputs.append(output)
         #saveClassificationResults(DIR + 'results/accuracy_ML.csv', output)
         #theanoTest(y,X)
-        #pt.plotEverything(cls_stats, times, len(X))
+        pt.plotEverything(cls_stats, times, len(X))
+
     return outputs
 
-def runExpNtimes(df, feature_sets, classifiers, repetitions):
+def runExpNtimes(df, feature_sets, repetitions):
     times = {'preparing_time':0.0,
              'training_time': 0.0,
              'testing_time': 0.0,
              'another_time': 0.0}
     results = []
+    batch_size = 500
     for index in xrange(0, repetitions):
-        outputs = runExperiment(df, feature_sets, classifiers, times)
+        outputs = runExperiment(df, feature_sets, times, batch_size)
         results.append(makeResults(outputs))
     table = []
     for result in results:
