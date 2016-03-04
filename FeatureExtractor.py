@@ -20,9 +20,20 @@ from Variables import fn_der as fdname
 from collections import Counter
 import csv
 
-header1 = ['Tags', 'SecondsToFirstAnswer']
+#header1 = ['Tags', 'SecondsToFirstAnswer']
 #db_name = 'stackoverflow'
+time_stats = {'n_dimension': 0,
+              'n_samples': 0,
+              't0': time.time(),
+              'time_taken': 0.0,
+              }
 
+features = {'raw_light': time_stats,
+            'raw_heavy': time_stats,
+            'easy': time_stats,
+            'hard_st': time_stats,
+            'hard_tags': time_stats,
+            'all': time_stats}
 
 def extractUserFeatures(c, DIR):
     if not os.path.exists(DIR + 'users'):
@@ -152,6 +163,7 @@ def extractLocs(DIR):
    df.to_csv(DIR + 'users/data_loc.csv')
 
 def extractLocations(DIR, user_name, data):
+
    df_locs = data['LOCATION']
    # create a file with unique locations
    uniq_locs = loc.UniqueLocations(df_locs)
@@ -160,6 +172,7 @@ def extractLocations(DIR, user_name, data):
         os.makedirs(DIR + 'location')
    uniq_locs.to_csv(DIR + 'location/unique_loc.csv', index=False)
    # find latitude and longitude of these unique locations
+
    uniq_locs = pd.read_csv(DIR + 'location/unique_loc.csv')
    print uniq_locs
 
@@ -168,6 +181,7 @@ def extractLocations(DIR, user_name, data):
    file_name_s = DIR + '/location/unique_loc_latlon.csv'
    loc.findLocations(user_name, locs, file_name_s)
    print 'extracted LAT and LON'
+
    loc.findTimezones(user_name, DIR + 'location/unique_loc_latlon.csv', DIR + 'location/locations_done.csv')
 
    locations = pd.read_csv(DIR + 'location/locations_done.csv')
@@ -182,6 +196,7 @@ def extractLocations(DIR, user_name, data):
    print data.head()
    #transform location to a unique number
    df2 = intFromLoc(DIR, data)
+   print 'extracted the feature LOCATION_NUM'
    data = pd.concat([data, df2], axis=1)
    df = pd.merge(data, locations, how='left', on='LOCATION')
    return df
@@ -230,6 +245,8 @@ def extractEasyFeatures(c, DIR):
 
 
 def extractHardFeatures(DIR):
+    #TODO uncomment
+
    posts = pd.read_csv(DIR + 'posts/users_posts_times.csv')
    #activities = useractivity.usersActivityFast(posts)
    year, month, day = useractivity.theLatestPostTime(posts)
@@ -297,11 +314,9 @@ def createTimeLabels(DIR, input):
 
 def extractForML(db_name, DIR):
     c = query.DBConnect(db_name)
-    extractEasyFeatures(c, DIR)
+    #extractEasyFeatures(c, DIR)
     extractHardFeatures(DIR)
     input = pd.read_csv(DIR + 'posts/quest_stats.csv', error_bad_lines=False)
-
     t_median = input['SecondsToAcceptedAnswer'].median()
+    print t_median
     createTimeLabel(input, t_median, DIR + 'posts/TEMP_CL.csv')
-
-
