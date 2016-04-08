@@ -244,7 +244,7 @@ df['TweetId'] = df.index
 df = df.sort(['Timestamp', 'Type'], ascending=[1,0])
 df = df.reset_index(drop=True)
 print df
-
+#TODO: remove dublicated rows where RE, RT, or MT at the same time
 #freqs = Counter(df['Timestamp'])
 #repeated = []
 #for freq in freqs:
