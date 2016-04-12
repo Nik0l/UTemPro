@@ -23,7 +23,7 @@ def setAllFeatures():
           'LON', 'LAT', 'time_diff', 'USERS_SAME_LOC', 'WH_TITLE', 'WH_BODY','DAYS_ON_SITE',
           'Q_MARKS_TITLE', 'Q_MARKS_BODY', 'VERBS_TITLE', 'VERBS_BODY', 'SELF_REF_TITLE', 'SELF_REF_BODY',
           'URLS_BODY', 'IMAGES_BODY', 'CODE_BLOCKS', 'TOTAL_CODE_LENGTH', 'WEEKDAY_Q'] + features['tags']
-    features_all.remove('TAG_SPECIFICITY')
+    #features_all.remove('TAG_SPECIFICITY')
     return features_all
 
 def setFeaturesVariations():
@@ -45,7 +45,7 @@ def setFeaturesVariations():
           'U_QUESTIONS', 'U_ANSWERS', 'NUM_OF_A_ACCEPTED_BY_OTHERS', 'U_POSTS', 'U_AV_ANS_TIME',
           'DAYS_ON_SITE', 'U_REPUTATION', 'U_UPVOTES', 'U_DOWNVOTES', 'U_VIEWS', 'Q_VIEWS',
           'LON', 'LAT', 'time_diff', 'USERS_SAME_LOC', 'WEEKDAY_Q'] + features['tags']
-    features_all_no_nlp.remove('TAG_SPECIFICITY')
+    #features_all_no_nlp.remove('TAG_SPECIFICITY')
     features_all = setAllFeatures()
     features_variations = [features_s, features_st, features_u_st, features_u_tag, features_all_no_nlp, features_all]
     return features_variations
@@ -57,7 +57,7 @@ def setFeaturesToUse():
           'LON', 'LAT', 'time_diff', 'USERS_SAME_LOC', 'WH_TITLE', 'WH_BODY','DAYS_ON_SITE',
           'Q_MARKS_TITLE', 'Q_MARKS_BODY', 'VERBS_TITLE', 'VERBS_BODY', 'SELF_REF_TITLE', 'SELF_REF_BODY',
           'URLS_BODY', 'IMAGES_BODY', 'CODE_BLOCKS', 'TOTAL_CODE_LENGTH', 'WEEKDAY_Q'] + features['tags']
-    features_to_use.remove('TAG_SPECIFICITY')
+    #features_to_use.remove('TAG_SPECIFICITY')
     return features_to_use
 
 def setFeaturesToUseAll():
