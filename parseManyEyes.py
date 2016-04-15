@@ -1,3 +1,5 @@
+# parsing data extracted from IBM Many Eyes
+
 import pandas as pd
 import xml.etree.ElementTree as ET
 import glob
