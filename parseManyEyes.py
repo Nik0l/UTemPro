@@ -31,24 +31,27 @@ def parseFiles(outputfile):
         root = tree.getroot()
         doc_df = pd.DataFrame(list(iter_docs(root)))
         doc_df.to_csv(outputfile, mode='a', header=False, encoding='utf-8')
-
+        
+def statsData(outputfile):
+	df = pd.read_csv(outputfile)
+	df['Date'] = pd.to_datetime(df['Date'])
+	df['year'] = df['Date'].dt.year
+	df['month'] = df['Date'].dt.month
+	df['day'] = df['Date'].dt.day
+	print df['Date'][0:5]
+	print df.head()
+	print df.shape
+	people = list(Counter(df['Name']))
+	datasets = list(Counter(df['Title']))
+	years = Counter(df['year'])
+	print years
+	print len(people)
+	print len(datasets)
+	#not extracted
+	#print (490982 - 489900)/489.900
+	
 outputfile = 'parse.csv'
-#parseFiles(outputfile)
+parseFiles(outputfile)
+statsData(outputfile)
 
-df = pd.read_csv(outputfile)
 
-df['Date'] = pd.to_datetime(df['Date'])
-df['year'] = df['Date'].dt.year
-df['month'] = df['Date'].dt.month
-df['day'] = df['Date'].dt.day
-print df['Date'][0:5]
-print df.head()
-print df.shape
-people = list(Counter(df['Name']))
-datasets = list(Counter(df['Title']))
-years = Counter(df['year'])
-print years
-print len(people)
-print len(datasets)
-#not extracted
-#print (490982 - 489900)/489.900
