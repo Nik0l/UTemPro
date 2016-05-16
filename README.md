@@ -11,7 +11,7 @@ The framework allows to predict human behavior in the context of social networks
 
 ### For your business:
 
-The framework provides an API and has been tested on Twitter, Facebook, and Stack Exchange forums. For example, we predicted when a user answers a question on a Q&A forum, rather a user reply or retweet a message on Twitter, who most probably 'likes' your post on Facebook. 
+The framework provides an API and has been tested on Twitter, Facebook, and Stack Exchange forums. For example, we predicted when a user answers a question on a Q&A forum, we estimated rather a user reply or retweet a message on Twitter, we found who the most probably 'likes' your post on Facebook. 
 
 ### For data scientists:
 
