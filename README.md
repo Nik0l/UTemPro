@@ -15,7 +15,7 @@ The framework provides an API and has been tested on Twitter, Facebook, and Stac
 
 * we predicted when a user will answer a question on a Q&A forum;
 * we estimated if a user will reply or retweet a message on Twitter;
-* we found who the most probably will 'like' your post on Facebook. 
+* we found who the most probably will 'like' a post on Facebook. 
 
 ### For data scientists:
 
