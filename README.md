@@ -5,7 +5,7 @@
 The framework is written mostly in Python 2.7.
 
 Dependencies:
-scikit-learn, nolearn, NLTK, matplotlib, sqlite3, GeoPy, pyenchant, igraph
+scikit-learn, Lasagne, NLTK, matplotlib, sqlite3, GeoPy, pyenchant, igraph
 
 The framework allows to predict human behavior in the context of social networks and media. For example, the framework allows to predict when a user will get involved in an interaction on a website or make an action.
 
